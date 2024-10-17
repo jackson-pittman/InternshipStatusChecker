@@ -62,6 +62,8 @@ mail.select("inbox")
 
 status, messages = mail.search(None, '(SUBJECT "acceptance" OR SUBJECT "rejection")')
 
+email_data = []
+
 for num in messages[0].split():
     status, data = mail.fetch(num, "(RFC882)")
     for response_part in data:
@@ -69,9 +71,14 @@ for num in messages[0].split():
             msg = email.message_from_bytes(response_part[1], policy=policy.default)
             subject, company_name, application_status = process_email(msg)
 
-            print(f"Subject: {subject}")
-            print(f"Company: {company_name}")
-            print(f"Status: {application_status}")
+            email_data.append({
+                "Subject": subject,
+                "Company": company_name,
+                "Status": application_status
+            })
+            
+df = pd.DataFrame(email_data)
+df.to_excel("internship_application_status.xlsx", index=False)
 
 mail.logout()            
 
